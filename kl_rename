@@ -6,8 +6,9 @@ def renameQuery():
   
   # Declare global variables
   global searchName, replaceName, selection, prefixName, suffixName, newName, startNum, padding
+  
+  # Query selected objects in the scene and get its long name to get around duplicate names of objects
   selection = mc.ls(selection=True, long=True)
-  selection.reverse()
   
   # Assign UI information to variables
   searchName = mc.textField('searchRename_text', query=True, text=True)
@@ -27,7 +28,43 @@ def renameQuery():
 def nameReplace():
   ##### This function searches for a specific text in object's name and replaces it with a given input #####
   
+  # Query UI information and reverse the selection list to process the children first before the parents
+  renameQuery()
+  selection.reverse()
+  
+  # Search and replace name for each object
+  for item in selection:
+    # Get the short name of each object by getting the last name from its long name
+    shortName = item.split("|")[-1]
+    
+    # Rename object if searchName is found within the object's name
+    if searchName in shortName:
+      mc.rename(item, shortname.replace(searchName, replaceName))
+      
+def namePrefixSuffix(suffix=False):
+  ##### This function adds prefix or suffix to each selected object #####
+  
+  # Query UI information and reverse the selection list to process the children first before the parents
+  renameQuery()
+  selection.reverse()
+  
+  # Add prefix or suffix for each object
+  for item in selection:
+    # Get the short name of each object by getting the last name from its long name
+    shortName = item.split("|")[-1]
+    
+    # Determine whether to add a prefix or a suffix
+    if suffix:
+      mc.rename(item, shortName + suffixName)
+    else:
+      mc.rename(item, prefixName + shortName)
+      
+def nameRename():
+  ##### This function renames each object to given input #####
+  
   # Query UI information
   renameQuery()
   
-  # 
+  # Rename each selected objects according to given input
+  for item in selection:
+    mc.rename(item, "%s_" % newName + ("%%0%si" % int(padding)) % int(startNum))
