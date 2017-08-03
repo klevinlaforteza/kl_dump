@@ -1,0 +1,33 @@
+import maya.cmds as mc
+
+
+def renameQuery():
+  ##### This function queries the information from the UI #####
+  
+  # Declare global variables
+  global searchName, replaceName, selection, prefixName, suffixName, newName, startNum, padding
+  selection = mc.ls(selection=True, long=True)
+  selection.reverse()
+  
+  # Assign UI information to variables
+  searchName = mc.textField('searchRename_text', query=True, text=True)
+  replaceName = mc.textField('replaceRename_text', query=True, text=True)
+  prefixName = mc.textField('prefixName_text', query=True, text=True)
+  suffixName = mc.textField('suffixName_text', query=True, text=True)
+  newName = mc.textField('newName_text', query=True, text=True)
+  startNum = mc.textField('startNum_text', query=True, text=True)
+  padding = mc.textField('padding_text', query=True, text=True)
+  
+  # Assign default values to start number and padding if no input is given from the UI
+  if not startNum:
+    startNum = 1
+  if not padding:
+    padding = 4
+    
+def nameReplace():
+  ##### This function searches for a specific text in object's name and replaces it with a given input #####
+  
+  # Query UI information
+  renameQuery()
+  
+  # 
