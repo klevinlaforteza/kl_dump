@@ -57,4 +57,32 @@ def addShape():
         mc.parent(shape, parent, add=True, shape=True)
       mc.delete(object)
       
-  # R
+  # Select parent object and rename its shape node accordingly
+  mc.select(parent)
+  renameShape()
+  
+def renameShape():
+  ##### This function renames the shape nodes according to the name of the transform nodes #####
+  
+  # Query selection
+  listSelection()
+  
+  # Check if there are any selection
+  if selection:
+    for object in selection:
+      # Define the short name of each object
+      shortName = object.split("|")[-1]
+      
+      # Create a list of shape nodes of each object
+      shapes = mc.listRelatives(object, shapes=True, path=True)
+      
+      # Check if object has shape nodes
+      if shapes:
+        # Reverse the list and count the shape nodes of each object
+        shapes.reverse()
+        i = len(shapes
+        
+        # Rename each shape node accordingly
+        for shape in shapes:
+          mc.rename(shape, "%sShape%s" % (shortName, i))
+          i -= 1
