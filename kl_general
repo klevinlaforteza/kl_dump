@@ -1,0 +1,60 @@
+import maya.cmds as mc
+
+
+def mayaWindow(win):
+  ##### This function loads and shows up the specified maya window #####
+  
+  exec("mc.%s()" % win)
+  
+def listSelection():
+  ##### This function creates a list from the selected objects #####
+  
+  # Declare the list as a global variable
+  global selection
+  
+  # Create a list from selected objects and get their long names
+  selection = mc.ls(selection=True, long=True)
+  
+def shapeShowHide(show=False):
+  ##### This function shows or hides the shape nodes from the channel box #####
+  
+  # Query the selection
+  listSelection()
+  
+  # Check if there are any selection
+  if selection:
+    for object in selection:
+      # Create a list of shapes for each object
+      shapes = mc.listRelatives(object, shapes=True)
+      
+      # Check if object has shape nodes
+      if shapes:
+        # Show or hide each shape node for each object
+        for shape in shapes:
+          mc.setAttr("%s.isHistoricallyInteresting" % shape, show)
+          
+    # Return to original selection
+    mc.select(selection)
+    
+def addShape():
+  ##### This function adds the shape nodes of selection to last selected objects #####
+  
+  # Query selection
+  listSelection()
+  
+  # Define the parent object and remove it from the list
+  parent = selection[-1]
+  selection.remove(parent)
+  
+  for object in selection:
+    # Create a list of shapes for each object
+    shapes = mc.listRelatives(object, shapes=True, path=True)
+    
+    # Check if object has shape nodes
+    if shapes:
+      # Add each shape node of the object to the parent object and delete the object afterwards
+      for shape in shapes:
+        mc.parent(shape, parent, add=True, shape=True)
+      mc.delete(object)
+      
+  # R
