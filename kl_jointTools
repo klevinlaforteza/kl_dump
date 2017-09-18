@@ -1,0 +1,14 @@
+import maya.cmds as mc
+
+	
+def jointSize():
+	size = mc.intSlider("jointSize_slider", query=True, value=True) / 10.00
+	mc.jointDisplayScale(size)
+	
+def jointShowHide(show=0):
+	selection = mc.ls(selection=True, type="joint")
+	if not selection:
+		selection = mc.ls(type="joint")
+	
+	for joint in selection:
+		mc.setAttr("%s.drawStyle" % joint, show)
