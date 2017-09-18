@@ -1,0 +1,48 @@
+import maya.cmds as mc
+
+
+def textCurve():
+	# text to be created
+	text = mc.textField('textCurve_text', query=True, text=True)
+	
+	if text:
+		if text.startswith(' '):
+			mc.warning("Please make sure input text doesn't start with a space.")
+	
+		else:
+			print "Creating %s curve" % (text)
+			# create text curves
+			crv = mc.textCurves(text=text, constructionHistory=False, name=text + "_text_crv")[0]
+				
+			# rename the curve by removing "Shape" from its name
+			crv = mc.rename(crv, crv.split("Shape")[0])
+
+			# list all children of the created text curve
+			children = mc.listRelatives(crv, allDescendents=True, type="transform")
+
+			# list the children with shape nodes
+			curves = [child for child in children if mc.listRelatives(child, shapes=True)]
+
+			# add the shape node to curve
+			x = 1
+			for curve in curves:
+				mc.parent(curve, crv)
+				mc.makeIdentity(curve, apply=True, translate=True)
+				shapes = mc.listRelatives(curve, shapes=True)
+				for shape in shapes:
+					mc.parent(shape, crv, add=True, shape=True)
+					mc.rename(shape, crv + "Shape" + str(x))
+					x =+ 1
+
+			# delete all the children of the curve
+			mc.delete(children)
+
+			# center the pivot of the curve and snap it back to the origin
+			mc.xform(crv, centerPivots=True)
+			pivot = mc.xform(crv, query=True, rotatePivot=True)
+			mc.setAttr(crv + ".t", -pivot[0], -pivot[1], -pivot[2])
+			mc.makeIdentity(crv, apply=True, translate=True)
+			mc.select(crv)
+			
+	else:
+		mc.warning("Please input text.")
