@@ -88,6 +88,10 @@ def conveyor_rig():
 	start = distance/2
 	num = 1
 	
+	# Create controller
+	ctrl = mc.duplicateCurve("%s.v[0]" % selection, constructionHistory=False, name="%s_ctrl" % selection)[0]
+	mc.addAttr(ctrl, longName="Cycle", attributeType="float", keyable=True)
+	
 	for span in range(0, spans):
 		foll = create_follicle(selection, start, 0.5)
 		start += distance
