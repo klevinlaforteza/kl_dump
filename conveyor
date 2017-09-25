@@ -36,6 +36,7 @@ def conveyor_rig():
     
     # Create controller
     ctrl = mc.duplicateCurve("%s.v[0]" % selection, constructionHistory=False, name="%s_ctrl" % selection)[0]
+    mc.scale(1.2, 1.2, 1.2, "%s.cv[0:]" % ctrl, ocp=True)
     mc.addAttr(ctrl, longName="Cycle", attributeType="float", keyable=True)
     driver = "%s.Cycle" % ctrl
     
