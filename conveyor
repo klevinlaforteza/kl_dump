@@ -37,30 +37,36 @@ def conveyor_rig():
     # Create controller
     ctrl = mc.duplicateCurve("%s.v[0]" % selection, constructionHistory=False, name="%s_ctrl" % selection)[0]
     mc.addAttr(ctrl, longName="Cycle", attributeType="float", keyable=True)
+    driver = "%s.Cycle" % ctrl
+    
+    # Create a unit conversion node
+    ucn = mc.createNode("unitConversion", name="%s_ucn" % selection)
+    mc.setAttr("%s.conversionFactor" % ucn, 0.01)
+    mc.connectAttr(driver, "%s.input" % ucn)
     
     for span in range(0, spans):
         foll = create_follicle(selection, start, 0.5)
         start += distance
-        
-        follicle = foll[0]
-        attr = follicle + ".parameterU"
-        startU = mc.getAttr(attr)
-        print attr, startU
-        
-        mc.setAttr(attr, 0)
-        mc.setDrivenKeyframe(attr, cd="%s.Cycle" % ctrl, itt="linear", ott="linear")
-        mc.setAttr("%s.Cycle" % ctrl, 1)
-        mc.setAttr(attr, 1)
-        mc.setDrivenKeyframe(attr, cd="%s.Cycle" % ctrl, itt="linear", ott="linear")
-        mc.setAttr("%s.Cycle" % ctrl, 0)
-        
-        mc.setAttr(follicle + "_parameterU.preInfinity", 3)
-        mc.setAttr(follicle + "_parameterU.postInfinity", 3)
-        mc.keyframe(follicle + "_parameterU", index=(0, 0), e=1, fc=0 - startU, o="over", a=1)
-        mc.keyframe(follicle + "_parameterU", index=(1, 1), e=1, fc=1 - startU, o="over", a=1)
-
         follicleTransform = mc.rename(foll[1], "%s_%s_fol" % (selection, num))
         num += 1
         mc.parent(follicleTransform, follicleGrp)
         mc.select(follicleTransform)
         joint = mc.joint(name=follicleTransform.replace("fol", "skn"))
+        
+        follicle = mc.listRelatives(follicleTransform, shapes=True)[0]
+        attr = follicle + ".parameterU"
+        startU = mc.getAttr(attr)
+        
+        mc.setAttr(attr, 0)
+        mc.setDrivenKeyframe(attr, cd=driver, itt="linear", ott="linear")
+        mc.setAttr(driver, 1)
+        mc.setAttr(attr, 1)
+        mc.setDrivenKeyframe(attr, cd=driver, itt="linear", ott="linear")
+        mc.setAttr(driver, 0)
+        
+        mc.setAttr(follicle + "_parameterU.preInfinity", 3)
+        mc.setAttr(follicle + "_parameterU.postInfinity", 3)
+        mc.keyframe(follicle + "_parameterU", index=(0, 0), e=1, fc=0 - startU, o="over", a=1)
+        mc.keyframe(follicle + "_parameterU", index=(1, 1), e=1, fc=1 - startU, o="over", a=1)
+        mc.connectAttr("%s.output" % ucn, follicle + "_parameterU.input", force=True)
+
