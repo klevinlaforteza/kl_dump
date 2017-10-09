@@ -1,0 +1,17 @@
+##---------- Query channel box attributes
+mc.channelBox("mainChannelBox", query=True, selectedMainAttributes=True)
+##----------
+
+##---------- Connect attributes query text
+import maya.cmds as mc
+
+DRIVER = []
+
+def setDriver():
+	selection = mc.ls(selection=True)
+	mc.textField("driver_text", edit=True, text=", ".join(selection))
+	DRIVER = (mc.textField("driver_text", query=True, text=True)).split(", ")
+	for d in DRIVER:
+		print d
+	print DRIVER
+##----------
