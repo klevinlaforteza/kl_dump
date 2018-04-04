@@ -15,3 +15,53 @@ def setDriver():
 		print d
 	print DRIVER
 ##----------
+
+def renameNodes():
+	
+	# Create a dictionary for the nodes
+	dict = {
+		"tweak"			: "twk",
+		"skinCluster"		: "scn",
+		"blendShape"		: "bsn",
+		"polySmoothFace"	: "smn",
+		"transferAttributes"	: "tfa"
+		}
+	# Query the selection
+	selection = mc.ls(selection=True)
+	
+	# Get the shape node of each object
+	for object in selection:
+		shape = mc.listRelatives(object, type="shape")[0]
+		
+		# Get the nodes connected to the shape
+		nodes = mc.listConnections(shape, destination=False)
+		for node in nodes:
+			nodeType = mc.objectType(node)
+			if nodeType in dict:
+				mc.rename(node, "%s_%s" % (object, dict[nodeType]))
+				
+def deleteBindPose():
+
+	# Create a list of bind pose nodes in the scene
+	bindPose = mc.ls("bindPose*", type="dagPose")
+	for pose in bindPose:
+		try:
+			mc.delete(pose)
+			print "%s has been deleted." % pose
+		except:
+			print "Unable to delete %s." % pose
+			
+			
+def deleteUnknownNodes():
+	
+	# Create a list of unknown nodes in the scene
+	unknownNodes = mc.ls(type="unknown")
+	num = 0
+	for node in unknownNodes:
+		try:
+			mc.delete(node)
+			print "%s has been deleted." % node
+			num += 1
+		except:
+			pass
+	mc.warning("Deleted %s unknown nodes." % num)
