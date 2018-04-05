@@ -65,3 +65,29 @@ def deleteUnknownNodes():
 		except:
 			pass
 	mc.warning("Deleted %s unknown nodes." % num)
+
+
+def copySkinCluster():
+
+	# Query selection and assign variables
+	selection = mc.ls(selection=True)
+	source = selection[0]
+	selection.remove(source)
+	shape = mc.listRelatives(source, shapes=True, fullPath=True)[0]
+	
+	# Get the skin cluster node
+	try:
+		scn = mc.listConnections(shape, type="skinCluster")[0]
+	except:
+		scnSet = mc.listConnections(shape, type="objectSet")[2]
+		scn = mc.listConnections(scnSet, type="skinCluster")[0]
+		
+	# Get the list of the joints in the skin cluster node
+	joints = mc.skinCluster(scn, query=True, influence=True)
+	
+	# Attach object to their own skin cluster and copy the weights from the source
+	for object in selection:
+		scn1 = mc.skinCluster(joints, object, toSelectedBones=True)[0]
+		mc.copySkinWeights(sourceSkin=scn, destinationSkin=scn1, noMirror=True, surfaceAssociation="closestPoint", normalize=True, influenceAssociation=["label", "oneToOne", "label"])
+		
+	mc.select(source, selection)
